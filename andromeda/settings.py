@@ -75,8 +75,12 @@ WSGI_APPLICATION = "andromeda.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "andromeda",
+        "USER": "andromeda_admin",
+        "PASSWORD": "ijclab2026_narso",
+        "HOST": "localhost",
+        "PORT": "",
     }
 }
 
