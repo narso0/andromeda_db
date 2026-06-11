@@ -1,14 +1,46 @@
 from django.db import models
 
-class LabUser(models.Model):
-    user_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=150)
-    email = models.EmailField(unique=True, null=True, blank=True)
-    lab = models.CharField(max_length=100, null=True, blank=True)
-    project_name = models.CharField(max_length=200, null=True, blank=True)
+class Laboratory(models.Model):
+    ORGANIZATION_CHOICES = [
+        ('Internal Academic', 'Internal Academic'),
+        ('External Academic', 'External Academic'),
+        ('Industrial', 'Industrial'),
+    ]
+    laboratory_id = models.AutoField(primary_key=True)
+    name_laboratory = models.CharField(max_length=150)
+    organization = models.CharField(max_length=50, null=True, blank=True)
+    organization_type = models.CharField(max_length=50, choices=ORGANIZATION_CHOICES)
+    country = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.name
+        return self.name_laboratory
+    class Meta:
+        verbose_name_plural = "Laboratories"
+class User(models.Model):
+    PROJECT_ORIGIN_CHOICES = [
+        ('EMIR&A Call', 'EMIR&A Call'),
+        ('Mosaic Proposal', 'Mosaic Proposal'),
+        ('User Feasibility Study', 'User Feasibility Study'),
+        ('Internal Research', 'Internal Research'),
+    ]
+
+    laboratory = models.ForeignKey(Laboratory, on_delete=models.RESTRICT, related_name='users')
+
+    user_id = models.AutoField(primary_key=True)
+
+    last_name = models.CharField(max_length=150)
+    first_name = models.CharField(max_length=150, null=True, blank=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
+    project_title = models.CharField(max_length=200)
+    submission_date = models.DateField(null=True, blank=True)
+    project_origin = models.CharField(max_length=50, choices=PROJECT_ORIGIN_CHOICES)
+    confidentiality = models.BooleanField(default=False)
+
+    file_proposal = models.FileField(upload_to='users/proposals/', null=True, blank=True)
+
+
+    def __str__(self):
+        return f"{self.last_name} ({self.project_title})"
 
 class Sample(models.Model):
     MATERIAL_CHOICES = [
@@ -28,7 +60,7 @@ class Sample(models.Model):
     type_sample = models.CharField(max_length=100, choices=TYPE_SAMPLE_CHOICES, null=True, blank=True)
     project_name = models.CharField(max_length=100, null=True, blank=True)
 
-    user = models.ForeignKey(LabUser, on_delete=models.RESTRICT, related_name='samples')
+    user = models.ForeignKey(User, on_delete=models.RESTRICT, related_name='samples')
 
     material_classification = models.CharField(max_length=50, choices=MATERIAL_CHOICES)
    
@@ -69,7 +101,7 @@ class PrimaryBeam(models.Model):
         (400.0, '400 µm'),
         (800.0, '800 µm'),
     ]
-    # required fields
+    #required fields
     irradiation_date = models.DateField()
     primary_ion_species = models.CharField(max_length=50, choices=PRIMARY_ION_CHOICES)
     energy_MeV = models.FloatField()
@@ -77,7 +109,7 @@ class PrimaryBeam(models.Model):
     pulse_beam_kV = models.FloatField()
     repetition_rate_kHz = models.FloatField()
     
-    # optional fields
+    #optional fields
     accelerator_name = models.CharField(max_length=100, null=True, blank=True)
     ion_source_type = models.CharField(max_length=100, choices=ION_SOURCE_CHOICES, null=True, blank=True)
     fluence_ions_cm2 = models.FloatField(null=True, blank=True)
@@ -85,6 +117,8 @@ class PrimaryBeam(models.Model):
     comments = models.TextField(null=True, blank=True)
 
     file_accelerator_log = models.FileField(upload_to='beams/logs/', null=True, blank=True)
+    def __str__(self):
+        return f"Beam {self.primary_ion_species} on Sample {self.sample.sample_code} at ({self.irradiation_date})"
 
 class Spectrometer(models.Model):
     spectrometer_id = models.AutoField(primary_key=True)
@@ -118,8 +152,17 @@ class Spectrometer(models.Model):
     analysis_area_um2 = models.FloatField(null=True, blank=True)
     comments = models.TextField(null=True, blank=True)
 
+    #new optional fields
+    make_spectrometer = models.CharField(max_length=100, null=True, blank=True)
+    beam_incidence_angle = models.FloatField(null=True, blank=True)
+    detector_type = models.CharField(max_length=100, null=True, blank=True)
+    detector_dead_time = models.CharField(max_length=100, null=True, blank=True)
+    supplementary_information = models.TextField(null=True, blank=True)
+
     file_slowcontrol_log_txt = models.FileField(upload_to='spectrometers/logs/', null=True, blank=True)
     spectrometer_metadata = models.JSONField(null=True, blank=True)
+    def __str__(self):
+        return f"Spectrometer {self.spectrometer_id} on {self.spectrometer_date}"
 
 
 class AcquisitionTOFSIMS(models.Model):
@@ -127,13 +170,13 @@ class AcquisitionTOFSIMS(models.Model):
 
     spectrometer = models.ForeignKey(Spectrometer, on_delete=models.CASCADE, related_name='acquisitions')
     SOFTWARE_CHOICES = [
-        ('slow control EVE', 'slow control EVE'),
+        ('Slow Control EVE', 'Slow Control EVE'),
         ('Narval', 'Narval'),
         ('C-Visu', 'C-Visu'),
-        ('mmass', 'mmass'),
+        ('Mmass', 'Mmass'),
         ('Origin', 'Origin'),
     ]
-    ACQUISITION_CHOICES = [('local', 'local'), ('scan', 'scan')]
+    ACQUISITION_CHOICES = [('Local', 'Local'), ('Scan', 'Scan')]
 
     #required fields
     run_date = models.DateField()
@@ -147,6 +190,9 @@ class AcquisitionTOFSIMS(models.Model):
     number_of_tof_bins = models.IntegerField(null=True, blank=True)
 
     file_acquisition_log = models.FileField(upload_to='acquisitions/logs/', null=True, blank=True)
+    class Meta:
+        verbose_name = "Acquisition TOF-SIMS"
+        verbose_name_plural = "Acquisitions TOF-SIMS"
 
 
 class PreProcessingSpectra(models.Model):
@@ -156,15 +202,15 @@ class PreProcessingSpectra(models.Model):
 
     DATA_TYPE_CHOICES = [('1D', '1D'), ('Map 2D', 'Map 2D')]
     FILTER_CHOICES = [
-        ('ion_correlated', 'ion_correlated'),
-        ('multiplicity_correlated', 'multiplicity_correlated'),
-        ('position_detector_correlated', 'position_detector_correlated'),
+        ('Ion_Correlated', 'Ion_Correlated'),
+        ('Multiplicity_Correlated', 'Multiplicity_Correlated'),
+        ('Position_Detector_Correlated', 'Position_Detector_Correlated'),
     ]
     
     SOFTWARE_CHOICES = [
-        ('slow control EVE', 'slow control EVE'),
+        ('Slow Control EVE', 'Slow Control EVE'),
         ('Narval', 'Narval'), ('C-Visu', 'C-Visu'),
-        ('mmass', 'mmass'), ('Origin', 'Origin'),
+        ('Mmass', 'Mmass'), ('Origin', 'Origin'),
     ]
     #required fields
     data_type = models.CharField(max_length=50, choices=DATA_TYPE_CHOICES)
@@ -177,15 +223,17 @@ class PreProcessingSpectra(models.Model):
     analyse_note = models.TextField(null=True, blank=True)
     
     file_acquisition_log = models.FileField(upload_to='acquisitions/logs/', null=True, blank=True)
+    def __str__(self):
+        return f"PreProcessing {self.raw_spectrum_id} ({self.data_type})"
 
 class Spectra(models.Model):
     mz_spectra_id = models.AutoField(primary_key=True)
 
     pre_processing = models.OneToOneField(PreProcessingSpectra, on_delete=models.CASCADE, related_name='spectra')
     SOFTWARE_CHOICES = [
-        ('slow control EVE', 'slow control EVE'),
+        ('Slow Control EVE', 'Slow Control EVE'),
         ('Narval', 'Narval'), ('C-Visu', 'C-Visu'),
-        ('mmass', 'mmass'), ('Origin', 'Origin'),
+        ('Mmass', 'Mmass'), ('Origin', 'Origin'),
     ]
     #required fields
     date_mz_spectra = models.DateField()
@@ -199,3 +247,7 @@ class Spectra(models.Model):
     file_peak_label = models.FileField(upload_to='spectra/peak_labels/', null=True, blank=True)
     file_peak_list = models.FileField(upload_to='spectra/peak_lists/', null=True, blank=True)
     file_result = models.FileField(upload_to='spectra/results/', null=True, blank=True)
+    def __str__(self):
+        return f"Spectra {self.mz_spectra_id} derived from PreProcess {self.pre_processing_id}"
+    class Meta:
+        verbose_name_plural = "Spectra"
