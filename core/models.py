@@ -7,6 +7,9 @@ class LabUser(models.Model):
     lab = models.CharField(max_length=100, null=True, blank=True)
     project_name = models.CharField(max_length=200, null=True, blank=True)
 
+    def __str__(self):
+        return self.name
+
 class Sample(models.Model):
     MATERIAL_CHOICES = [
         ('Ceramic', 'Ceramic'), ('Lipids', 'Lipids'), ('Metals', 'Metals'),
@@ -37,6 +40,13 @@ class Sample(models.Model):
 
     file_sample = models.FileField(upload_to='samples/pdfs/', null=True, blank=True)
     file_experiment_pdf = models.FileField(upload_to='samples/experiments/', null=True, blank=True)
+
+
+
+    def __str__(self):
+        if self.sample_code:
+            return self.sample_code
+        return f"Sample {self.sample_id}"
 
 class PrimaryBeam(models.Model):
     irradiation_id = models.AutoField(primary_key=True)
