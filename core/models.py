@@ -75,7 +75,7 @@ class Sample(models.Model):
     description = models.TextField(null=True, blank=True)
     preparation_date = models.DateField(null=True, blank=True)
 
-    reception_date = models.DateField(null=True, blank=True)
+    reception_date = models.DateField()
     storage_conditions = models.CharField(max_length=200, null=True, blank=True)
 
     file_sample = models.FileField(upload_to='samples/pdfs/', null=True, blank=True)

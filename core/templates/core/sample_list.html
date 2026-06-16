@@ -1,0 +1,36 @@
+{%extends 'core/base.html'%}
+
+{%block content%}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Laboratory Samples</h2>
+    <button class="btn btn-primary">Add New Sample</button>
+</div>
+<div class="table-responsive">
+    <table class="table table-hover table-striped align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Sample Name</th>
+                <th>Code</th>
+                <th>Material</th>
+                <th>Substrate</th>
+                <th>Reception Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for sample in samples%}
+            <tr>
+                <td>{{ sample.name_sample|default:"-" }}</td>
+                <td>{{ sample.sample_code|default:"-" }}</td>
+                <td>{{ sample.material_classification|default:"-" }}</td>
+                <td>{{ sample.type_substrate|default:"-" }}</td>
+                <td>{{ sample.reception_date|date:"M d, Y"|default:"-" }}</td>
+            </tr>
+            {%empty%}
+            <tr>
+                <td colspan="5" class="text-center text-muted py-4">No samples found in the database</td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+</div>
+{%endblock content%}
