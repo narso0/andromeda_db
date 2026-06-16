@@ -37,6 +37,7 @@ class User(models.Model):
     confidentiality = models.BooleanField(default=False)
 
     file_proposal = models.FileField(upload_to='users/proposals/', null=True, blank=True)
+    file_retex = models.FileField(upload_to='users/retex/', null=True, blank=True)
 
 
     def __str__(self):
@@ -52,31 +53,38 @@ class Sample(models.Model):
 
     TYPE_SAMPLE_CHOICES = [
         ('Sample', 'Sample'), ('Substrate', 'Substrate'), ('Standard', 'Standard'),
+        ('Analogue', 'Analogue'),
+    ]
+    TYPE_SUBSTRATE_CHOICES = [
+        ('Cuivre', 'Cuivre'), ('Aluminium', 'Aluminium'), ('Silicium', 'Silicium'),
+        ('Gold', 'Gold'), ('ITO', 'ITO'), ('Carbon', 'Carbon'), ('Mylar', 'Mylar'),
+        ('MgF2', 'MgF2'),
     ]
     sample_id = models.AutoField(primary_key=True)
+    name_sample = models.CharField(max_length=200, null=True, blank=True)
     sample_code = models.CharField(max_length=100, null=True, blank=True)
     batch_id = models.CharField(max_length=100, null=True, blank=True)
 
-    type_sample = models.CharField(max_length=100, choices=TYPE_SAMPLE_CHOICES, null=True, blank=True)
-    project_name = models.CharField(max_length=100, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='samples')
 
-    user = models.ForeignKey(User, on_delete=models.RESTRICT, related_name='samples')
+    type_sample = models.CharField(max_length=100, choices=TYPE_SAMPLE_CHOICES, null=True, blank=True)
+    type_substrate = models.CharField(max_length=100, choices=TYPE_SUBSTRATE_CHOICES, null=True, blank=True)
 
     material_classification = models.CharField(max_length=50, choices=MATERIAL_CHOICES)
    
     description = models.TextField(null=True, blank=True)
-    preparation_date = models.DateField()
+    preparation_date = models.DateField(null=True, blank=True)
 
     reception_date = models.DateField(null=True, blank=True)
     storage_conditions = models.CharField(max_length=200, null=True, blank=True)
 
     file_sample = models.FileField(upload_to='samples/pdfs/', null=True, blank=True)
-    file_experiment_pdf = models.FileField(upload_to='samples/experiments/', null=True, blank=True)
-
 
 
     def __str__(self):
-        if self.sample_code:
+        if self.name_sample:
+            return self.name_sample
+        elif self.sample_code:
             return self.sample_code
         return f"Sample {self.sample_id}"
 
