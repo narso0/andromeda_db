@@ -1,0 +1,18 @@
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environments
+venv/
+env/
+.env
+
+# Git
+.git/
+.gitignore
+
+# Database and media
+*.sqlite3
+media/
