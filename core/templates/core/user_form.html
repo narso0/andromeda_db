@@ -4,15 +4,15 @@
     <div class="col-md-8">
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Add New Laboratory Sample</h4>
+                <h4 class="mb-0">Add New Laboratory User</h4>
             </div>
             <div class="card-body">
                 <form method="POST">
                     {%csrf_token%}
                     {{ form.as_p }}
                     <div class="d-flex justify-content-end mt-4">
-                        <a href="{% url 'sample_list' %}" class="btn btn-outline-secondary me-2">Cancel</a>
-                        <button type="submit" class="btn btn-success">Save Sample</button>
+                        <a href="{% url 'user_list' %}" class="btn btn-outline-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-success">Save User</button>
                     </div>
                 </form>
             </div>

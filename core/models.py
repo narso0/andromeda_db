@@ -35,7 +35,6 @@ class User(models.Model):
     submission_date = models.DateField(null=True, blank=True)
     project_origin = models.CharField(max_length=50, choices=PROJECT_ORIGIN_CHOICES)
     confidentiality = models.BooleanField(default=False)
-
     file_proposal = models.FileField(upload_to='users/proposals/', null=True, blank=True)
     file_retex = models.FileField(upload_to='users/retex/', null=True, blank=True)
 
