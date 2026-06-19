@@ -36,7 +36,7 @@ def run_import():
         except Laboratory.DoesNotExist:
             print(f"Error: Lab ID {lab_id} not found for User {row['last_name']}")
             continue
-        is_confidential = "O" if str(row['confidentiality']).strip().upper() == 'O' else "N"
+        is_confidential = True if str(row['confidentiality']).strip().upper() == 'O' else False
         raw_date = row['submission_date']
         submission_date = pd.to_datetime(raw_date, errors='coerce')
         final_date = submission_date.date() if pd.notna(submission_date) else None

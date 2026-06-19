@@ -89,8 +89,6 @@ class Sample(models.Model):
 
 class PrimaryBeam(models.Model):
     irradiation_id = models.AutoField(primary_key=True)
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='irradiations')
-
     PRIMARY_ION_CHOICES = [
         ('Au +', 'Au +'),
         ('Au2 +', 'Au2 +'),
@@ -125,20 +123,31 @@ class PrimaryBeam(models.Model):
 
     file_accelerator_log = models.FileField(upload_to='beams/logs/', null=True, blank=True)
     def __str__(self):
-        return f"Beam {self.primary_ion_species} on Sample {self.sample.sample_code} at ({self.irradiation_date})"
+        return f"Beam: {self.primary_ion_species} ({self.energy_MeV} MeV)"
 
-class Spectrometer(models.Model):
-    spectrometer_id = models.AutoField(primary_key=True)
-    primary_beam = models.ForeignKey(PrimaryBeam, on_delete=models.CASCADE, related_name='spectrometers')
-
-    POLARITY_CHOICES = [
-        ('Positive', 'Positive'),
-        ('Negative', 'Negative'),
-    ]
+class Equipment(models.Model):
     ANALYSER_CHOICES = [
         ('direct', 'direct'),
         ('reflecteur', 'reflecteur'),
     ]
+    equipment_id = models.AutoField(primary_key=True)
+    instrument_name = models.CharField(max_length=100, null=True, blank=True)
+    make = models.CharField(max_length=100, null=True, blank=True)
+    beam_incidence_angle = models.FloatField(null=True, blank=True)
+    detector_type = models.CharField(max_length=100, null=True, blank=True)
+    detector_dead_time = models.CharField(max_length=100, null=True, blank=True)
+    supplementary_information = models.TextField(null=True, blank=True)
+
+    analyser_type = models.CharField(max_length=50, choices=ANALYSER_CHOICES)
+
+class SpectrometerParameters(models.Model):
+    param_id = models.AutoField(primary_key=True)
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name='parameters')
+    POLARITY_CHOICES = [
+        ('Positive', 'Positive'),
+        ('Negative', 'Negative'),
+    ]
+    
     POSITION_CHOICES = [
         ('Substrate', 'Substrate'),
         ('Target', 'Target'),
@@ -146,7 +155,6 @@ class Spectrometer(models.Model):
 
     #required fields
     spectrometer_date = models.DateField()
-    analyser_type = models.CharField(max_length=50, choices=ANALYSER_CHOICES)
     lens_ext = models.FloatField()
     lens_SI = models.FloatField()
     detector_bias = models.FloatField()
@@ -154,28 +162,22 @@ class Spectrometer(models.Model):
     polarity = models.CharField(max_length=20, choices=POLARITY_CHOICES)
 
     #optional fields
-    instrument_name = models.CharField(max_length=100, null=True, blank=True)
     name_position = models.CharField(max_length=100, choices=POSITION_CHOICES, null=True, blank=True)
     analysis_area_um2 = models.FloatField(null=True, blank=True)
     comments = models.TextField(null=True, blank=True)
 
-    #new optional fields
-    make_spectrometer = models.CharField(max_length=100, null=True, blank=True)
-    beam_incidence_angle = models.FloatField(null=True, blank=True)
-    detector_type = models.CharField(max_length=100, null=True, blank=True)
-    detector_dead_time = models.CharField(max_length=100, null=True, blank=True)
-    supplementary_information = models.TextField(null=True, blank=True)
-
     file_slowcontrol_log_txt = models.FileField(upload_to='spectrometers/logs/', null=True, blank=True)
-    spectrometer_metadata = models.JSONField(null=True, blank=True)
     def __str__(self):
-        return f"Spectrometer {self.spectrometer_id} on {self.spectrometer_date}"
+        return f"Params {self.param_id} ({self.polarity})"
 
 
 class AcquisitionTOFSIMS(models.Model):
     run_id = models.AutoField(primary_key=True)
 
-    spectrometer = models.ForeignKey(Spectrometer, on_delete=models.CASCADE, related_name='acquisitions')
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='acquisition')
+    primary_beam = models.ForeignKey(PrimaryBeam, on_delete=models.CASCADE, related_name='acquisition')
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name='acquisition')
+    spectro_params = models.ForeignKey(SpectrometerParameters, on_delete=models.CASCADE, related_name='acquisition')
     SOFTWARE_CHOICES = [
         ('Slow Control EVE', 'Slow Control EVE'),
         ('Narval', 'Narval'),
@@ -197,6 +199,8 @@ class AcquisitionTOFSIMS(models.Model):
     number_of_tof_bins = models.IntegerField(null=True, blank=True)
 
     file_acquisition_log = models.FileField(upload_to='acquisitions/logs/', null=True, blank=True)
+    def __str__(self):
+        return f"Run {self.run_id} on Sample {self.sample}"
     class Meta:
         verbose_name = "Acquisition TOF-SIMS"
         verbose_name_plural = "Acquisitions TOF-SIMS"
