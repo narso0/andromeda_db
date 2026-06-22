@@ -1,19 +1,36 @@
 {%extends 'core/base.html'%}
+
 {%block content%}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Laboratory Users</h2>
-    {% if request.user.is_superuser %}
-        <a href="{% url 'add_user' %}" class="btn btn-dark">Add New User</a>
-    {% endif %}
+    {%if request.user.is_superuser%}
+        <a href="{%url 'add_user'%}" class="btn btn-dark">Add New User</a>
+    {%endif%}
 </div>
+
+<div class="mb-4">
+    <div class="input-group input-group-lg shadow-sm">
+        <span class="input-group-text bg-white" id="search-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-search" viewBox="0 0 16 16">
+                <path
+                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+            </svg>
+        </span>
+        <input type="text" id="sampleSearch" class="form-control"
+            placeholder="Search by user ID, lab ID, name, etc."
+            aria-label="Search Users" aria-describedby="search-icon">
+    </div>
+</div>
+
 <div class="card shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
+            <table class="table table-hover table-striped align-middle mb-0" id="userTable">
+                <thead class="table-dark sticky-top" style="z-index: 1;">
                     <tr>
                         <th>ID</th>
-                        <th>Lab ID</th>
+                        <th>Lab Name</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Project Title</th>
@@ -23,27 +40,29 @@
                 </thead>
                 <tbody>
                     {%for user in users%}
-                    <tr>
+                    <tr class="user-row">
                         <td>{{ user.user_id }}</td>
-                        <td>{{ user.laboratory_id }}</td>
+                        <td>{{user.laboratory.name_laboratory }}</td>
                         <td><strong>{{ user.first_name }} {{ user.last_name }}</strong></td>
                         <td>{{ user.email }}</td>
+
                         <td>
-                            {%if user.confidentiality and not request.user.is_superuser %}
+                            {%if user.confidentiality and not request.user.is_superuser%}
                                 <span class="badge bg-danger">[REDACTED - CONFIDENTIAL]</span>
                             {%else%}
                                 {{ user.project_title }}
                             {%endif%}
                         </td>
+
                         <td>
-                            {%if user.confidentiality and not request.user.is_superuser %}
+                            {%if user.confidentiality and not request.user.is_superuser%}
                                 <span class="badge bg-danger">[REDACTED - CONFIDENTIAL]</span>
                             {%else%}
                                 {{ user.project_origin }}
                             {%endif%}
                         </td>
                         <td>
-                            {%if user.confidentiality and not request.user.is_superuser %}
+                            {%if user.confidentiality and not request.user.is_superuser%}
                                 <span class="badge bg-danger">[REDACTED - CONFIDENTIAL]</span>
                             {%else%}
                                 {{ user.submission_date|date:"M d, Y" }}
@@ -52,12 +71,43 @@
                     </tr>
                     {%empty%}
                     <tr>
-                        <td colspan="7" class="text-center py-4 text-muted">No users found.</td>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            No users found.
+                        </td>
                     </tr>
                     {%endfor%}
+                    <tr id="noResultsRow" style="display: none;">
+                        <td colspan="7" class="text-center text-muted py-4">
+                            No matching users found.
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("sampleSearch");
+    const tableRows = document.querySelectorAll(".user-row");
+    const noResultsRow = document.getElementById("noResultsRow");
+    searchInput.addEventListener("keyup", function () {
+        const searchQuery = searchInput.value.trim().toLowerCase();
+        let visibleRowCount = 0;
+        tableRows.forEach(row => {
+            const rowText = row.textContent.toLowerCase();
+
+            if (rowText.includes(searchQuery)) {
+                row.style.display = "";
+                visibleRowCount++;
+            }else{
+                row.style.display = "none";
+            }
+        });
+        noResultsRow.style.display =
+            visibleRowCount === 0 ? "" : "none";
+    });
+});
+</script>
 {%endblock content%}
