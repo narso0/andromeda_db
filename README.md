@@ -1,7 +1,6 @@
-````md
 # Andromeda Database
 
-A web-based Laboratory Information Management System (LIMS) developed for the **Laboratoire de Physique des 2 Infinis Irène Joliot-Curie (IJCLab)**.
+A web-based Laboratory Information Management System developed for the **Laboratoire de Physique des 2 Infinis Irène Joliot-Curie (IJCLab)**.
 
 The application replaces spreadsheet-based workflows with a centralized PostgreSQL database for managing TOF-SIMS experiments, laboratory samples, researchers, experimental acquisitions, and associated metadata.
 
@@ -86,7 +85,8 @@ python manage.py runserver
 The application will be available at:
 
 ```text
-http://127.0.0.1:8000/
+http://127.0.0.1:8000/ 
+(or a similar link, it will be shown in the terminal)
 ```
 
 ---
@@ -116,4 +116,3 @@ Planned improvements include:
 ## License
 
 This project was developed for **IJCLab** as part of an internship project.
-````
