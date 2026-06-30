@@ -1,24 +1,119 @@
-# Andromeda Database - IJCLab
+````md
+# Andromeda Database
 
-Andromeda is a customized, web-based laboratory information management system (LIMS) engineered for the Laboratoire de Physique des 2 Infinis Irène Joliot-Curie (IJCLab). 
+A web-based Laboratory Information Management System (LIMS) developed for the **Laboratoire de Physique des 2 Infinis Irène Joliot-Curie (IJCLab)**.
 
-It is designed to modernize and digitize the tracking of TOF-SIMS research data, physical samples, user access, and laboratory equipment, replacing legacy flat-file Excel tracking with a fully normalized relational database architecture.
+The application replaces spreadsheet-based workflows with a centralized PostgreSQL database for managing TOF-SIMS experiments, laboratory samples, researchers, experimental acquisitions, and associated metadata.
 
-## 🚀 System Architecture
-* **Backend Framework:** Django 4.x (Python)
-* **Database:** PostgreSQL 14+ 
-* **Frontend:** Server-side rendered HTML with Bootstrap 5 and custom institutional CSS.
-* **Interactivity:** Vanilla JavaScript for zero-latency client-side data filtering.
+---
 
-## 🚀 Current Features
-* **Normalized Relational Schema:** Data is structured around a central Acquisition "Hub", separating static equipment parameters from dynamic experimental runs to ensure strict data integrity.
-* **Instant Search Filtering:** Administrative lists (Samples, Users) feature real-time, JavaScript-powered search bars that filter thousands of records instantly without server reloading.
-* **UI/UX Design:** Implements a clean, high-contrast, academic interface with optimized typography (Inter), sticky-header data tables, and tactile form controls.
-* **Automated Data Pipeline:** Includes customized Python ingestion scripts (`import_data.py`) to safely parse, clean, and migrate historical laboratory data from legacy spreadsheets into the new PostgreSQL schema.
+## Features
 
-## 🚀 Local Development Setup
+- Laboratory and researcher management
+- Sample registration and tracking
+- TOF-SIMS acquisition management
+- Equipment and spectrometer parameter records
+- File uploads for proposals, spectra, logs, and experimental data
+- Fast client-side search for laboratory records
+- Relational database designed to preserve links between experiments, samples, and scientific results
 
-**1. Clone the Repository**
+---
+
+## Technology Stack
+
+| Component | Technology |
+|-----------|------------|
+| Backend | Django |
+| Database | PostgreSQL |
+| Frontend | HTML, Bootstrap 5 |
+| Styling | Custom CSS |
+| Client-side Interactivity | Vanilla JavaScript |
+
+---
+
+## Getting Started
+
+### Clone the repository
+
 ```bash
-git clone [https://gitlab.in2p3.fr/Web-IJCLab/andromede_database.git](https://gitlab.in2p3.fr/Web-IJCLab/andromede_database.git)
+git clone https://gitlab.in2p3.fr/Web-IJCLab/andromede_database.git
 cd andromede_database
+```
+
+### Create a virtual environment
+
+```bash
+python -m venv venv
+```
+
+Activate it:
+
+**Linux / macOS**
+
+```bash
+source venv/bin/activate
+```
+
+**Windows**
+
+```bash
+venv\Scripts\activate
+```
+
+### Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Configure the database
+
+Create a PostgreSQL database and update the database connection settings in `settings.py`.
+
+### Run migrations
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### Start the development server
+
+```bash
+python manage.py runserver
+```
+
+The application will be available at:
+
+```text
+http://127.0.0.1:8000/
+```
+
+---
+
+## Project Goals
+
+- Replace legacy Excel-based laboratory records
+- Improve data consistency and traceability
+- Centralize TOF-SIMS experimental metadata
+- Provide a scalable foundation for future laboratory workflows
+
+---
+
+## Future Development
+
+Planned improvements include:
+
+- Authentication and role-based permissions
+- Advanced filtering and search
+- Interactive dashboards
+- Data import/export utilities
+- Experimental reporting
+- REST API for external integrations
+
+---
+
+## License
+
+This project was developed for **IJCLab** as part of an internship project.
+````
