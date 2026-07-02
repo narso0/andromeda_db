@@ -176,7 +176,6 @@ class AcquisitionTOFSIMS(models.Model):
 
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='acquisition')
     primary_beam = models.ForeignKey(PrimaryBeam, on_delete=models.CASCADE, related_name='acquisition')
-    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name='acquisition')
     spectro_params = models.ForeignKey(SpectrometerParameters, on_delete=models.CASCADE, related_name='acquisition')
     SOFTWARE_CHOICES = [
         ('Slow Control EVE', 'Slow Control EVE'),
