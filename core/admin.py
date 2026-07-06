@@ -96,7 +96,7 @@ class AcquisitionTOFSIMSAdmin(admin.ModelAdmin):
 @admin.register(PreProcessingSpectra)
 class PreProcessingSpectraAdmin(admin.ModelAdmin):
     list_display  = ('raw_spectrum_id', 'acquisition', 'data_type', 'nb_impact', 'software_name', 'filtered_spectrum')
-    search_fields = ('acquisition__sample__name_sample', 'acquisition__run_id')
+    search_fields = ('acquisition__sample__name_sample',)
     list_filter   = ('data_type', 'software_name', 'filtered_spectrum')
     raw_id_fields = ('acquisition',)
     inlines       = [SpectraInline]

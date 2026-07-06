@@ -1,6 +1,15 @@
 from django.shortcuts import redirect, render
+from django.views.generic import DetailView
 from .models import Sample, User
 from .forms import SampleForm, UserForm
+
+class SampleDetailView(DetailView):
+    model = Sample
+    template_name = 'core/sample_detail.html'
+
+class UserDetailView(DetailView):
+    model = User
+    template_name = 'core/user_detail.html'
 
 def home(request):
     return render(request, 'core/home.html')
@@ -11,7 +20,7 @@ def add_sample(request):
     if not request.user.is_superuser:
         return redirect('sample_list')
     if request.method == 'POST':
-        form = SampleForm(request.POST)
+        form = SampleForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('sample_list')
@@ -27,7 +36,7 @@ def add_user(request):
     if not request.user.is_superuser:
         return redirect('user_list')
     if request.method == 'POST':
-        form = UserForm(request.POST)
+        form = UserForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('user_list')

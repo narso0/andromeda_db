@@ -30,7 +30,7 @@
         </thead>
         <tbody>
             {%for sample in samples%}
-            <tr class="sample-row">
+            <tr class="sample-row" data-href="{% url 'sample_detail' sample.sample_id %}" style="cursor: pointer;">
                 <td>{{ sample.name_sample|default:"-" }}</td>
                 <td>{{ sample.sample_code|default:"-" }}</td>
                 <td>{{ sample.material_classification|default:"-" }}</td>
@@ -52,6 +52,11 @@
     document.addEventListener("DOMContentLoaded", function() {
         const searchInput = document.getElementById("sampleSearch")
         const tableRows = document.querySelectorAll(".sample-row")
+        tableRows.forEach(row => {
+            row.addEventListener("click", function() {
+                window.location = this.dataset.href;
+            });
+        });
         const noResultsRow = document.getElementById("noResultsRow")
         searchInput.addEventListener('keyup', function(){
             const searchQuery = searchInput.value.toLowerCase();
