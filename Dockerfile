@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED=1
 
 #setting the directory where all of the commands will run
 WORKDIR /app
-
+RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /app/
 
