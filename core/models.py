@@ -172,7 +172,7 @@ class SpectrometerParameters(models.Model):
 
 
 class AcquisitionTOFSIMS(models.Model):
-    run_id = models.AutoField(primary_key=True)
+    run_id = models.CharField(max_length=50, primary_key=True)
 
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='acquisition')
     primary_beam = models.ForeignKey(PrimaryBeam, on_delete=models.CASCADE, related_name='acquisition')

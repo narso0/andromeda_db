@@ -6,14 +6,18 @@ import pandas as pd
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'andromeda.settings')
 django.setup()
 
-from core.models import Laboratory, User, Sample
-
+from core.models import Laboratory, User, Sample, PrimaryBeam, Equipment, SpectrometerParameters, AcquisitionTOFSIMS
 def run_import():
     file_name = 'Andromeda_Data.xlsx'
     print(f"Loading {file_name}...")
     df_labs = pd.read_excel(file_name, sheet_name='Laboratory')
     df_users = pd.read_excel(file_name, sheet_name='User')
     df_samples = pd.read_excel(file_name, sheet_name='Sample')
+    #new imports
+    df_beams = pd.read_excel(file_name, sheet_name='Primary Ion')
+    df_equipments = pd.read_excel(file_name, sheet_name='Equipment')
+    df_params = pd.read_excel(file_name, sheet_name='Spectrometer Parameter')
+    df_acquisitions = pd.read_excel(file_name, sheet_name='Acquisition TOF-SIMS')
     print("Importing Laboratories...")
     for index, row in df_labs.iterrows():
         lab, created = Laboratory.objects.update_or_create(
@@ -94,7 +98,78 @@ def run_import():
         if created:
             print(f"  + Created Sample: {sample.name_sample}")
 
-    print("Import Complete!")
+    print("Importing Primary Beams...")
+    for index, row in df_beams.iterrows():
+        if pd.isna(row['irradiation_id']): continue
+        PrimaryBeam.objects.update_or_create(
+            irradiation_id=int(row['irradiation_id']),
+            defaults={
+                'irradiation_date': pd.to_datetime(row['irradiation_date']).date() if pd.notna(row['irradiation_date']) else None,
+                'accelerator_name': str(row['accelerator_name']).strip() if pd.notna(row['accelerator_name']) else None,
+                'ion_source_type': str(row['ion_source_type']).strip() if pd.notna(row['ion_source_type']) else None,
+                'primary_ion_species': str(row['primary_ion_species']).strip(),
+                'energy_MeV': float(row['energy_MeV']) if pd.notna(row['energy_MeV']) else 0.0,
+                'spot_size_um': float(row['spot_size_µm']) if pd.notna(row['spot_size_µm']) else 0.0,
+                'pulse_beam_kV': float(row['pulse_beam_kv']) if pd.notna(row['pulse_beam_kv']) else 0.0,
+                'repetition_rate_kHz': float(row['repetition_rate_kHz']) if pd.notna(row['repetition_rate_kHz']) else 0.0,
+                'fluence_ions_cm2': float(row['fluence_ions_cm2']) if pd.notna(row['fluence_ions_cm2']) else None,
+                'current_nA': float(row['current_nA']) if pd.notna(row['current_nA']) else None,
+                'comments': str(row['comments']).strip() if pd.notna(row['comments']) else None,
+            }
+        )
+    print("Importing Equipment...")
+    for index, row in df_equipments.iterrows():
+        Equipment.objects.update_or_create(
+            equipment_id=int(row['equipment_id']),
+            defaults={
+                'instrument_name': str(row['instrument_name']).strip() if pd.notna(row['instrument_name']) else None,
+                'make': str(row['make']).strip() if pd.notna(row['make']) else None,
+                'beam_incidence_angle': float(str(row['beam_incidence_angle']).replace('°', '').strip()) if pd.notna(row['beam_incidence_angle']) else None,
+                'detector_type': str(row['detector_type']).strip() if pd.notna(row['detector_type']) else None,
+                'detector_dead_time': str(row['detector_dead_time']).strip() if pd.notna(row['detector_dead_time']) else None,
+                'supplementary_information': str(row['supplementary information']).strip() if pd.notna(row['supplementary information']) else None,
+                'analyser_type': str(row['analyser_type']).strip(),
+            }
+        )
+
+    print("Importing Spectrometer Parameters...")
+    for index, row in df_params.iterrows():
+        if pd.isna(row['param_id']): continue
+        SpectrometerParameters.objects.update_or_create(
+            param_id=int(row['param_id']),
+            defaults={
+                'equipment_id': int(row['equipment_id']),
+                'spectrometer_date': pd.to_datetime(row['spectrometer_date']).date() if pd.notna(row['spectrometer_date']) else None,
+                'polarity': str(row['polarity']).strip(),
+                'sample_bias_kV': float(row['sample_bias_kv']) if pd.notna(row['sample_bias_kv']) else 0.0,
+                'detector_bias': float(row['detector_bias']) if pd.notna(row['detector_bias']) else 0.0,
+                'lens_ext': float(row['lens_ext']) if pd.notna(row['lens_ext']) else 0.0,
+                'lens_SI': float(row['lens_si']) if pd.notna(row['lens_si']) else 0.0,
+                'name_position': str(row['name_position']).strip() if pd.notna(row['name_position']) else None,
+                'analysis_area_um2': float(row['analysis_area_µm2']) if pd.notna(row['analysis_area_µm2']) else None,
+                'comments': str(row['comments']).strip() if pd.notna(row['comments']) else None,
+            }
+        )
+
+    print("Importing Acquisitions...")
+    for index, row in df_acquisitions.iterrows():
+        if pd.isna(row['run_id']): continue
+        AcquisitionTOFSIMS.objects.update_or_create(
+            run_id=str(row['run_id']).strip(),
+            defaults={
+                'sample_id': int(row['sample_id']),
+                'primary_beam_id': int(row['irradiation_id']),
+                'spectro_params_id': int(row['param_id']),
+                'run_date': pd.to_datetime(row['run_date']).date() if pd.notna(row['run_date']) else None,
+                'software_version': str(row['software_version']).strip() if pd.notna(row['software_version']) else None,
+                'type_acquisition': str(row['type_acquisition']).strip() if pd.notna(row['type_acquisition']) else None,
+                'event_number': int(row['event_number']) if pd.notna(row['event_number']) else None,
+                'tof_bin_width_ns': float(row['tof_bin_width_ns']) if pd.notna(row['tof_bin_width_ns']) else None,
+                'number_of_tof_bins': int(row['number_of_tof_bins']) if pd.notna(row['number_of_tof_bins']) else None,
+            }
+        )
+    print("Full Database Import Complete!")
+
 
 
 
