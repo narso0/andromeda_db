@@ -139,6 +139,8 @@ class Equipment(models.Model):
     supplementary_information = models.TextField(null=True, blank=True)
 
     analyser_type = models.CharField(max_length=50, choices=ANALYSER_CHOICES)
+    class Meta:
+        verbose_name_plural = "Equipment"
 
 class SpectrometerParameters(models.Model):
     param_id = models.AutoField(primary_key=True)
@@ -169,6 +171,8 @@ class SpectrometerParameters(models.Model):
     file_slowcontrol_log_txt = models.FileField(upload_to='spectrometers/logs/', null=True, blank=True)
     def __str__(self):
         return f"Params {self.param_id} ({self.polarity})"
+    class Meta:
+        verbose_name_plural = "Spectrometer Parameters"
 
 
 class AcquisitionTOFSIMS(models.Model):

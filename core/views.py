@@ -17,7 +17,7 @@ def sample_list(request):
     samples = Sample.objects.all().order_by('-reception_date')
     return render(request, 'core/sample_list.html', {'samples': samples})
 def add_sample(request):
-    if not request.user.is_superuser:
+    if not request.user.has_perm('core.add_sample'):
         return redirect('sample_list')
     if request.method == 'POST':
         form = SampleForm(request.POST, request.FILES)
@@ -33,7 +33,7 @@ def user_list(request):
     return render(request, 'core/user_list.html', {'users': users})
 
 def add_user(request):
-    if not request.user.is_superuser:
+    if not request.user.has_perm('core.add_user'):
         return redirect('user_list')
     if request.method == 'POST':
         form = UserForm(request.POST, request.FILES)
