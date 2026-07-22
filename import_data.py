@@ -98,15 +98,29 @@ def run_import():
         if created:
             print(f"  + Created Sample: {sample.name_sample}")
 
+
+#normalization for liquid metals and tofsims
+    ION_SOURCE_MODEL_TO_CATEGORY = {
+        'LMIS AuGe': 'Liquid metal',
+    }
+    ANALYSER_TYPE_NORMALIZATION = {
+        'TOF SIMS': 'TOF',
+        'TOF': 'TOF',
+    }
     print("Importing Primary Beams...")
     for index, row in df_beams.iterrows():
         if pd.isna(row['irradiation_id']): continue
+        raw_source = str(row['ion_source_type']).strip() if pd.notna(row['ion_source_type']) else None
+        source_category = ION_SOURCE_MODEL_TO_CATEGORY.get(raw_source)
+        if raw_source and source_category is None:
+            print(f"Unknown ion source '{raw_source}' on irradiation_id={row['irradiation_id']} -> leaving category blank, have to check with others later")
         PrimaryBeam.objects.update_or_create(
             irradiation_id=int(row['irradiation_id']),
             defaults={
                 'irradiation_date': pd.to_datetime(row['irradiation_date']).date() if pd.notna(row['irradiation_date']) else None,
                 'accelerator_name': str(row['accelerator_name']).strip() if pd.notna(row['accelerator_name']) else None,
-                'ion_source_type': str(row['ion_source_type']).strip() if pd.notna(row['ion_source_type']) else None,
+                'ion_source_type': source_category,
+                'source_model': raw_source,
                 'primary_ion_species': str(row['primary_ion_species']).strip(),
                 'energy_MeV': float(row['energy_MeV']) if pd.notna(row['energy_MeV']) else 0.0,
                 'spot_size_um': float(row['spot_size_µm']) if pd.notna(row['spot_size_µm']) else 0.0,
@@ -119,6 +133,10 @@ def run_import():
         )
     print("Importing Equipment...")
     for index, row in df_equipments.iterrows():
+        raw_analyser = str(row['analyser_type']).strip()
+        normalized_analyser = ANALYSER_TYPE_NORMALIZATION.get(raw_analyser)
+        if normalized_analyser is None:
+            print(f"Unknown analyser_type '{raw_analyser}' on equipment_id={row['equipment_id']} -> leaving blank, have to check with others")
         Equipment.objects.update_or_create(
             equipment_id=int(row['equipment_id']),
             defaults={
@@ -128,7 +146,8 @@ def run_import():
                 'detector_type': str(row['detector_type']).strip() if pd.notna(row['detector_type']) else None,
                 'detector_dead_time': str(row['detector_dead_time']).strip() if pd.notna(row['detector_dead_time']) else None,
                 'supplementary_information': str(row['supplementary information']).strip() if pd.notna(row['supplementary information']) else None,
-                'analyser_type': str(row['analyser_type']).strip(),
+                'analyser_type': normalized_analyser,
+                'reflectron_state': None,
             }
         )
 

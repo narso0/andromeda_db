@@ -117,6 +117,7 @@ class PrimaryBeam(models.Model):
     #optional fields
     accelerator_name = models.CharField(max_length=100, null=True, blank=True)
     ion_source_type = models.CharField(max_length=100, choices=ION_SOURCE_CHOICES, null=True, blank=True)
+    source_model = models.CharField(max_length=100, null=True, blank=True)
     fluence_ions_cm2 = models.FloatField(null=True, blank=True)
     current_nA = models.FloatField(null=True, blank=True)
     comments = models.TextField(null=True, blank=True)
@@ -127,8 +128,11 @@ class PrimaryBeam(models.Model):
 
 class Equipment(models.Model):
     ANALYSER_CHOICES = [
-        ('direct', 'direct'),
-        ('reflecteur', 'reflecteur'),
+        ('TOF', 'TOF'),
+    ]
+    REFLECTRON_CHOICES = [
+        ('on', 'on'),
+        ('off', 'off'),
     ]
     equipment_id = models.AutoField(primary_key=True)
     instrument_name = models.CharField(max_length=100, null=True, blank=True)
@@ -138,6 +142,7 @@ class Equipment(models.Model):
     detector_dead_time = models.CharField(max_length=100, null=True, blank=True)
     supplementary_information = models.TextField(null=True, blank=True)
 
+    reflectron_state = models.CharField(max_length=10, choices=REFLECTRON_CHOICES, null=True, blank=True)
     analyser_type = models.CharField(max_length=50, choices=ANALYSER_CHOICES)
     class Meta:
         verbose_name_plural = "Equipment"
