@@ -48,10 +48,10 @@ class LaboratoryAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display  = ('user_id', 'last_name', 'first_name', 'email', 'laboratory', 'project_origin', 'confidentiality')
+    list_display  = ('user_id', 'last_name', 'first_name', 'email', 'account', 'laboratory', 'project_origin', 'confidentiality')
     search_fields = ('last_name', 'first_name', 'email', 'project_title')
     list_filter   = ('project_origin', 'confidentiality', 'laboratory')
-    raw_id_fields = ('laboratory',)
+    raw_id_fields = ('laboratory', 'account')
 
 @admin.register(Sample)
 class SampleAdmin(admin.ModelAdmin):

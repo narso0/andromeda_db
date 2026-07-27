@@ -1,0 +1,143 @@
+{%extends 'core/base.html'%}
+{%block content%}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0 mt-2">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Acquisition — {{acquisition.run_id}}</h4>
+                <a href="{%url 'sample_detail' acquisition.sample.sample_id%}" class="btn btn-sm btn-outline-light">&larr; Back to Sample</a>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="text-muted small">Run Date</label>
+                        <p class="fw-bold">{{acquisition.run_date|date:"M d, Y"}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Polarity</label>
+                        <p class="fw-bold">{{acquisition.spectro_params.polarity|default:"—"}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Analyser Type</label>
+                        <p class="fw-bold">{{acquisition.spectro_params.equipment.analyser_type|default:"—"}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Software</label>
+                        <p class="fw-bold">{{acquisition.software_name|default:"—"}} {{acquisition.software_version|default:""}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-secondary text-white">
+                <h6 class="mb-0">Primary Beam</h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="text-muted small">Ion Species</label>
+                        <p class="fw-bold">{{acquisition.primary_beam.primary_ion_species}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Energy (MeV)</label>
+                        <p class="fw-bold">{{acquisition.primary_beam.energy_MeV}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Source Type</label>
+                        <p class="fw-bold">{{acquisition.primary_beam.ion_source_type|default:"—"}}
+                            {%if acquisition.primary_beam.source_model%} ({{acquisition.primary_beam.source_model}}){%endif%}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Spot Size (µm)</label>
+                        <p class="fw-bold">{{acquisition.primary_beam.spot_size_um}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Pulse Beam (kV)</label>
+                        <p class="fw-bold">{{acquisition.primary_beam.pulse_beam_kV}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Repetition Rate (kHz)</label>
+                        <p class="fw-bold">{{acquisition.primary_beam.repetition_rate_kHz}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-secondary text-white">
+                <h6 class="mb-0">Spectrometer Parameters</h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="text-muted small">Instrument</label>
+                        <p class="fw-bold">{{acquisition.spectro_params.equipment.instrument_name|default:"—"}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Reflectron State</label>
+                        <p class="fw-bold">{{acquisition.spectro_params.equipment.reflectron_state|default:"—"}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Detector Bias</label>
+                        <p class="fw-bold">{{acquisition.spectro_params.detector_bias}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Sample Bias (kV)</label>
+                        <p class="fw-bold">{{acquisition.spectro_params.sample_bias_kV}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Lens Ext</label>
+                        <p class="fw-bold">{{acquisition.spectro_params.lens_ext}}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-muted small">Lens SI</label>
+                        <p class="fw-bold">{{acquisition.spectro_params.lens_SI}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mt-4 mb-4">
+            <div class="card-header bg-dark text-white">
+                <h6 class="mb-0">m/z Spectra</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Data Type</th>
+                            <th>Nb Impact</th>
+                            <th>Date</th>
+                            <th>Files</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for pp in acquisition.pre_processings.all%}
+                        <tr>
+                            <td>{{pp.data_type}}</td>
+                            <td>{{pp.nb_impact}}</td>
+                            <td>{%if pp.spectra%}{{pp.spectra.date_mz_spectra|date:"M d, Y"}}{%else%}—{%endif%}</td>
+                            <td>
+                                {%if pp.spectra%}
+                                    {%if pp.spectra.file_result%}<a href="{{pp.spectra.file_result.url}}" class="btn btn-sm btn-dark me-1 mb-1">Result</a>{%endif%}
+                                    {%if pp.spectra.file_tag%}<a href="{{pp.spectra.file_tag.url}}" class="btn btn-sm btn-outline-dark me-1 mb-1">Tags</a>{%endif%}
+                                    {%if pp.spectra.file_peak_list%}<a href="{{pp.spectra.file_peak_list.url}}" class="btn btn-sm btn-outline-dark me-1 mb-1">Peak List</a>{%endif%}
+                                    {%if pp.spectra.file_peak_label%}<a href="{{pp.spectra.file_peak_label.url}}" class="btn btn-sm btn-outline-dark me-1 mb-1">Peak Labels</a>{%endif%}
+                                {%else%}
+                                    <span class="text-muted">No processed spectrum yet</span>
+                                {%endif%}
+                            </td>
+                        </tr>
+                        {%empty%}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">No spectra recorded for this acquisition yet</td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock content%}

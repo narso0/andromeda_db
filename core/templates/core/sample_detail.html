@@ -68,6 +68,47 @@
                 </div>
             </div>
         </div>
+
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Acquisitions</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Run ID</th>
+                            <th>Run Date</th>
+                            <th>Polarity</th>
+                            <th>Analyser Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for acq in acquisitions%}
+                        <tr class="acquisition-row" data-href="{%url 'acquisition_detail' acq.run_id%}" style="cursor: pointer;">
+                            <td>{{acq.run_id}}</td>
+                            <td>{{acq.run_date|date:"M d, Y"}}</td>
+                            <td>{{acq.spectro_params.polarity|default:"—"}}</td>
+                            <td>{{acq.spectro_params.equipment.analyser_type|default:"—"}}</td>
+                        </tr>
+                        {%empty%}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">No acquisitions recorded for this sample yet</td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".acquisition-row").forEach(row => {
+            row.addEventListener("click", function() {
+                window.location = this.dataset.href;
+            });
+        });
+    });
+</script>
 {%endblock content%}

@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class Laboratory(models.Model):
     ORGANIZATION_CHOICES = [
@@ -25,6 +26,8 @@ class User(models.Model):
     ]
 
     laboratory = models.ForeignKey(Laboratory, on_delete=models.RESTRICT, related_name='users')
+
+    account = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='core_profile')
 
     user_id = models.AutoField(primary_key=True)
 

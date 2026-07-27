@@ -1,21 +1,60 @@
 from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView
 from .models import Sample, User
+from .models import Sample, User, AcquisitionTOFSIMS
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import SampleForm, UserForm
 
-class SampleDetailView(DetailView):
+class SampleDetailView(LoginRequiredMixin, DetailView):
     model = Sample
     template_name = 'core/sample_detail.html'
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Sample.objects.all()
+        core_profile = getattr(self.request.user, 'core_profile', None)
+        return core_profile.samples.all() if core_profile else Sample.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['acquisitions'] = self.object.acquisition.select_related(
+            'spectro_params', 'spectro_params__equipment'
+        ).order_by('-run_date')
+        return context
 
 class UserDetailView(DetailView):
     model = User
     template_name = 'core/user_detail.html'
 
+class AcquisitionDetailView(LoginRequiredMixin, DetailView):
+    model = AcquisitionTOFSIMS
+    template_name = 'core/acquisition_detail.html'
+    context_object_name = 'acquisition'
+
+    def get_queryset(self):
+        base = AcquisitionTOFSIMS.objects.select_related(
+            'sample', 'primary_beam', 'spectro_params', 'spectro_params__equipment'
+        ).prefetch_related('pre_processings__spectra')
+        if self.request.user.is_superuser:
+            return base
+        core_profile = getattr(self.request.user, 'core_profile', None)
+        return base.filter(sample__user=core_profile) if core_profile else base.none()
+
 def home(request):
     return render(request, 'core/home.html')
+
+
+@login_required
 def sample_list(request):
-    samples = Sample.objects.all().order_by('-reception_date')
+    if request.user.is_superuser:
+        samples = Sample.objects.all()
+    else:
+        core_profile = getattr(request.user, 'core_profile', None)
+        samples = core_profile.samples.all() if core_profile else Sample.objects.none()
+    samples = samples.select_related('user').order_by('-reception_date')
     return render(request, 'core/sample_list.html', {'samples': samples})
+
 def add_sample(request):
     if not request.user.has_perm('core.add_sample'):
         return redirect('sample_list')

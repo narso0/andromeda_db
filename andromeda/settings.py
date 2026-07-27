@@ -72,6 +72,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "andromeda.wsgi.application"
 
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
+
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
