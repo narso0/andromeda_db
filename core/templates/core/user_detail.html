@@ -57,18 +57,37 @@
                         <p class="fw-bold">{{object.confidentiality|yesno:"Yes,No"}}</p>
                     </div>
 
-                    {%if object.file_proposal%}
+                    {% if object.file_proposal %}
                     <div class="col-md-6">
                         <label class="text-muted small">Proposal File</label>
-                        <p><a href="{{object.file_proposal.url}}" class="btn btn-sm btn-outline-dark">Download</a></p>
+
+                        {% if object.confidentiality and not request.user.is_superuser %}
+                            <p class="fw-bold text-muted">[REDACTED]</p>
+                        {% else %}
+                            <p>
+                                <a href="{{ object.file_proposal.url }}" class="btn btn-sm btn-outline-dark">
+                                    Download
+                                </a>
+                            </p>
+                        {% endif %}
                     </div>
-                    {%endif%}
-                    {%if object.file_retex%}
+                    {% endif %}
+
+                    {% if object.file_retex %}
                     <div class="col-md-6">
                         <label class="text-muted small">Retex File</label>
-                        <p><a href="{{object.file_retex.url}}" class="btn btn-sm btn-outline-dark">Download</a></p>
+
+                        {% if object.confidentiality and not request.user.is_superuser %}
+                            <p class="fw-bold text-muted">[REDACTED]</p>
+                        {% else %}
+                            <p>
+                                <a href="{{ object.file_retex.url }}" class="btn btn-sm btn-outline-dark">
+                                    Download
+                                </a>
+                            </p>
+                        {% endif %}
                     </div>
-                    {%endif%}
+                    {% endif %}
                 </div>
             </div>
         </div>
