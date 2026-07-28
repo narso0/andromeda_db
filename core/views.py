@@ -22,8 +22,9 @@ class SampleDetailView(LoginRequiredMixin, DetailView):
             'spectro_params', 'spectro_params__equipment'
         ).order_by('-run_date')
         return context
+    
 
-class UserDetailView(DetailView):
+class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'core/user_detail.html'
 

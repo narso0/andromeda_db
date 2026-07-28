@@ -21,20 +21,36 @@
 
                     <div class="col-md-6">
                         <label class="text-muted small">Email</label>
+                    {%if object.confidentiality and not request.user.is_superuser%}
+                        <p class="fw-bold text-muted">[REDACTED]</p>
+                    {%else%}
                         <p class="fw-bold">{{object.email|default:"—"}}</p>
+                    {%endif%}
                     </div>
                     <div class="col-md-6">
                         <label class="text-muted small">Project Origin</label>
-                        <p class="fw-bold">{{object.project_origin}}</p>
+                    {%if object.confidentiality and not request.user.is_superuser%}
+                        <p class="fw-bold text-muted">[REDACTED]</p>
+                    {%else%}
+                        <p class="fw-bold">{{object.project_origin|default:"—"}}</p>
+                    {%endif%}
                     </div>
                     <div class="col-12">
                         <label class="text-muted small">Project Title</label>
+                    {%if object.confidentiality and not request.user.is_superuser%}
+                        <p class="fw-bold text-muted">[REDACTED]</p>
+                    {%else%}
                         <p class="fw-bold">{{object.project_title}}</p>
+                    {%endif%}
                     </div>
-
                     <div class="col-md-6">
                         <label class="text-muted small">Submission Date</label>
-                        <p class="fw-bold">{{object.submission_date|default:"—"}}</p>
+                    {%if object.confidentiality and not request.user.is_superuser%}
+                        <p class="fw-bold text-muted">[REDACTED]</p>
+                    {%else%}
+                        <p class="fw-bold">{{object.submission_date|date:"M d, Y"}}</p>
+                    {%endif%}
+                        
                     </div>
                     <div class="col-md-6">
                         <label class="text-muted small">Confidential</label>
