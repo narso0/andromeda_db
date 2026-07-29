@@ -120,7 +120,7 @@
                             <td>{%if pp.spectra%}{{pp.spectra.date_mz_spectra|date:"M d, Y"}}{%else%}—{%endif%}</td>
                             <td>
                                 {%if pp.spectra%}
-                                    {%if pp.spectra.file_result%}<a href="{{pp.spectra.file_result.url}}" class="btn btn-sm btn-dark me-1 mb-1">Result</a>{%endif%}
+                                    {%if pp.spectra.file_result%}<a href="{{pp.spectra.file_result.url}}" class="btn btn-sm btn-dark me-1 mb-1">Mass Spectrum</a>{%endif%}
                                     {%if pp.spectra.file_tag%}<a href="{{pp.spectra.file_tag.url}}" class="btn btn-sm btn-outline-dark me-1 mb-1">Tags</a>{%endif%}
                                     {%if pp.spectra.file_peak_list%}<a href="{{pp.spectra.file_peak_list.url}}" class="btn btn-sm btn-outline-dark me-1 mb-1">Peak List</a>{%endif%}
                                     {%if pp.spectra.file_peak_label%}<a href="{{pp.spectra.file_peak_label.url}}" class="btn btn-sm btn-outline-dark me-1 mb-1">Peak Labels</a>{%endif%}

@@ -2,7 +2,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView
 from .models import Sample, User
-from .models import Sample, User, AcquisitionTOFSIMS
+from .models import Sample, User, AcquisitionTOFSIMS, Laboratory
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import SampleForm, UserForm
 
@@ -43,7 +43,12 @@ class AcquisitionDetailView(LoginRequiredMixin, DetailView):
         return base.filter(sample__user=core_profile) if core_profile else base.none()
 
 def home(request):
-    return render(request, 'core/home.html')
+    stats = {
+        'samples': Sample.objects.count(),
+        'acquisitions': AcquisitionTOFSIMS.objects.count(),
+        'users': User.objects.count(),
+    }
+    return render(request, 'core/home.html', {'stats': stats})
 
 
 @login_required
