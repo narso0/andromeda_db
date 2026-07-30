@@ -210,7 +210,7 @@ a:hover {
 
 /* ---- Phase 3: Homepage ---- */
 .hero {
-  background-color: var(--color-ink);
+  background-color: transparent;
   border-radius: var(--radius-md);
   padding: 4rem 2.5rem;
   color: #F8FAFC;
@@ -249,22 +249,26 @@ a:hover {
 }
 .hero-spectrum {
   position: absolute;
-  right: -2rem;
+  right: 14rem;
   bottom: -1rem;
-  width: 55%;
-  max-width: 480px;
+  width: 62%;
+  max-width: 560px;
+  height: auto;
   opacity: 0.9;
+  overflow: hidden;
 }
-.hero-spectrum path {
-  stroke-dasharray: 900;
-  stroke-dashoffset: 900;
-  animation: draw-spectrum 1.8s ease-out forwards;
+.hero-spectrum svg {
+  display: block;
+  width: 200%;
+  height: 100%;
+  animation: spectrum-scroll 14s linear infinite;
 }
-@keyframes draw-spectrum {
-  to { stroke-dashoffset: 0; }
+@keyframes spectrum-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-spectrum path { animation: none; stroke-dashoffset: 0; }
+  .hero-spectrum svg { animation: none; transform: translateX(0); }
 }
 .stat-row {
   display: flex;
@@ -286,35 +290,64 @@ a:hover {
   letter-spacing: 0.06em;
   margin-top: 0.35rem;
 }
-.workflow-steps {
+.workflow-track {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin: 2.5rem 0;
+  gap: 2rem;
+  margin: 3.5rem 0 2rem;
+  padding-top: 2.5rem;
+}
+.workflow-track::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  left: calc(100% / 6);
+  right: calc(100% / 6);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(184, 137, 47, 0.4) 15%, rgba(184, 137, 47, 0.4) 85%, transparent);
 }
 .workflow-step {
-  background: var(--color-surface);
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-md);
-  padding: 1.75rem;
+  position: relative;
+  padding-left: 0.1rem;
+}
+.workflow-step .step-node {
+  position: absolute;
+  top: -2.5rem;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-ink);
+  border: 2px solid var(--color-gold);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.workflow-step:hover .step-node {
+  background: var(--color-gold);
+  box-shadow: 0 0 12px rgba(232, 197, 119, 0.7);
 }
 .workflow-step .step-number {
-  font-family: var(--font-display);
-  color: var(--color-gold);
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+  color: var(--color-gold-soft);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.6rem;
+  display: block;
 }
 .workflow-step h5 {
+  color: #F8FAFC;
   margin-bottom: 0.5rem;
+  font-size: 1.15rem;
 }
 .workflow-step p {
-  color: #64748B;
+  color: rgba(248, 250, 252, 0.55);
   font-size: 0.9rem;
   margin-bottom: 0;
+  max-width: 22rem;
 }
 @media (max-width: 768px) {
-  .workflow-steps { grid-template-columns: 1fr; }
+  .workflow-track { grid-template-columns: 1fr; gap: 2.5rem; }
+  .workflow-track::before { display: none; }
   .hero-spectrum { display: none; }
   .hero h1 { font-size: 2rem; }
 }

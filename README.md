@@ -8,13 +8,16 @@ The application replaces spreadsheet-based workflows with a centralized PostgreS
 
 ## Features
 
-- Laboratory and researcher management
-- Sample registration and tracking
-- TOF-SIMS acquisition management
+- Laboratory, researcher, and sample management
+- TOF-SIMS acquisition tracking, built around a central "hub" linking each run to its sample, primary beam, and spectrometer settings
 - Equipment and spectrometer parameter records
-- File uploads for proposals, spectra, logs, and experimental data
-- Fast client-side search for laboratory records
-- Relational database designed to preserve links between experiments, samples, and scientific results
+- Role-based access: researchers see only their own samples and acquisitions, IT/admin accounts see everything through the Django admin panel
+- UI-level confidentiality masking for sensitive researcher/project data
+- Web login for researchers (separate from Django admin access)
+- File uploads and downloads for proposals, spectra, logs, and experimental data
+- Fast client-side search on sample and researcher list pages
+- Relational schema designed to preserve links between experiments, samples, and scientific results
+- Excel-based data import script (`import_data.py`) for bulk-loading laboratory datasets
 
 ---
 
@@ -23,14 +26,18 @@ The application replaces spreadsheet-based workflows with a centralized PostgreS
 | Component | Technology |
 |-----------|------------|
 | Backend | Django |
-| Database | PostgreSQL |
+| Database | PostgreSQL (Dockerized) |
+| Deployment | Docker Compose |
 | Frontend | HTML, Bootstrap 5 |
 | Styling | Custom CSS |
 | Client-side Interactivity | Vanilla JavaScript |
+| Data Ingestion | pandas / openpyxl |
 
 ---
 
 ## Getting Started
+
+This project runs via Docker Compose. All Django management commands should be run inside the container, not on the host machine.
 
 ### Clone the repository
 
@@ -39,55 +46,65 @@ git clone https://gitlab.in2p3.fr/Web-IJCLab/andromede_database.git
 cd andromede_database
 ```
 
-### Create a virtual environment
+### Configure environment variables
+
+Copy or create a `.env` file with the database credentials and Django secret key expected by `docker-compose.yml` and `settings.py`. Any value containing a `$` character must be escaped as `$$`.
+
+### Build and start the containers
 
 ```bash
-python -m venv venv
+docker compose up -d
 ```
 
-Activate it:
-
-**Linux / macOS**
-
-```bash
-source venv/bin/activate
-```
-
-**Windows**
-
-```bash
-venv\Scripts\activate
-```
-
-### Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### Configure the database
-
-Create a PostgreSQL database and update the database connection settings in `settings.py`.
+This starts both the PostgreSQL database and the Django web server. A healthcheck ensures the web container waits for the database to be ready before starting.
 
 ### Run migrations
 
 ```bash
-python manage.py makemigrations
-python manage.py migrate
+docker compose exec web python manage.py makemigrations
+docker compose exec web python manage.py migrate
 ```
 
-### Start the development server
+### Import laboratory data (optional)
+
+If loading from an Excel dataset:
 
 ```bash
-python manage.py runserver
+docker compose exec web python import_data.py
 ```
 
-The application will be available at:
+### Access the application
 
 ```text
-http://127.0.0.1:8000/ 
-(or a similar link, it will be shown in the terminal)
+http://127.0.0.1:8000/
 ```
+
+Django admin is available at `/admin/`, and is intended for IT/superuser accounts only. Researcher accounts log in at `/login/` and only have access to the standard web interface.
+
+### Stopping the containers
+
+```bash
+docker compose down
+```
+
+This stops the containers without deleting data — the database lives in a named Docker volume. Do **not** add the `-v` flag unless you intentionally want to wipe the database.
+
+---
+
+## User Roles
+
+- **Superuser (IT)** — full access via Django admin, unrestricted data visibility.
+- **Lab Researchers** — a Django permission group with scoped access to add/view their own samples through the web interface. Researchers do not have Django admin access (`is_staff=False`) and cannot add or manage other researchers' accounts.
+
+New accounts are created manually by IT through the Django admin panel; there is no public self-registration.
+
+---
+
+## Known Limitations / Open Items
+
+- `PreProcessingSpectra` and `Spectra` records are not yet populated — this data is still being compiled by the lab and was not available at the time of writing.
+- `Equipment.reflectron_state` is a known modeling gap: per domain-expert feedback, it should describe the acquisition mode (direct vs. reflectron) of an individual spectrum/run, not a fixed property of the equipment itself. This needs a schema change (moving the field, likely to `AcquisitionTOFSIMS` or `SpectrometerParameters`) that has not yet been implemented.
+- Metadata export (a single combined file generated from all related tables for a given acquisition) is a planned future feature, scope to be defined later with the lab.
 
 ---
 
@@ -104,12 +121,12 @@ http://127.0.0.1:8000/
 
 Planned improvements include:
 
-- Authentication and role-based permissions
-- Advanced filtering and search
+- Advanced/technical-parameter search and filtering
 - Interactive dashboards
-- Data import/export utilities
+- Metadata export utilities
 - Experimental reporting
 - REST API for external integrations
+- Row-level data scoping (e.g. django-guardian) if finer-grained permissions are needed beyond group-level access
 
 ---
 

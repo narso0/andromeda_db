@@ -28,7 +28,7 @@ class SampleForm(BootstrapFormMixin, forms.ModelForm):
 class UserForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = User
-        fields = '__all__'
+        exclude = ['account']
         widgets = {
             'submission_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'confidentiality': forms.CheckboxInput(attrs={'class': 'form-check-input'}),

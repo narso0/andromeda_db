@@ -72,11 +72,12 @@ def add_sample(request):
     else:
         form = SampleForm()
     return render(request, 'core/sample_form.html', {'form': form})
-
+@login_required
 def user_list(request):
     users = User.objects.all().order_by('last_name')
     return render(request, 'core/user_list.html', {'users': users})
 
+@login_required
 def add_user(request):
     if not request.user.has_perm('core.add_user'):
         return redirect('user_list')
